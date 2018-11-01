@@ -5,12 +5,11 @@ import "net/http"
 type Bot struct {
 	Token  string
 	client *http.Client
+	Me     *User
 }
 
-type OptionFunc func(*Bot) error
-
-// NewBot build a bot with token
-func NewBot(token string, opts ...OptionFunc) (*Bot, error) {
+// New build a bot with token
+func New(token string, opts ...OptionFunc) (*Bot, error) {
 
 	bot := &Bot{Token: token}
 	for _, opt := range opts {
@@ -24,7 +23,11 @@ func NewBot(token string, opts ...OptionFunc) (*Bot, error) {
 		bot.client = http.DefaultClient
 	}
 
-	user, err := bot.getMe()
+	me, err := bot.getMe()
+	if err != nil {
+		return nil, err
+	}
+	bot.Me = me
 
 	return bot, nil
 }
