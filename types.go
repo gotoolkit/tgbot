@@ -1,13 +1,10 @@
 package tgbot
 
-// User object represents a Telegram user
+// User represents a Telegram user
 type User struct {
-	ID           int    `json:"id"`
-	IsBot        bool   `json:"is_bot"`
-	FirstName    string `json:"first_name"`
-	LastName     string `json:"last_name"`
-	Username     string `json:"username"`
-	LanguageCode string `json:"language_code"`
+	ID        int    `json:"id"`
+	IsBot     bool   `json:"is_bot"`
+	FirstName string `json:"first_name"`
 }
 
 // ChatType represents one of the possible chat types.
@@ -20,12 +17,22 @@ const (
 	ChatChannel    ChatType = "channel"
 )
 
-// Chat object represents a chat
+// Chat represents a chat
 type Chat struct {
-	ID        int64    `json:"id"`
-	Type      ChatType `json:"type"`
-	Title     string   `json:"title"`
-	FirstName string   `json:"first_name"`
-	LastName  string   `json:"last_name"`
-	Username  string   `json:"username"`
+	ID   int64    `json:"id"`
+	Type ChatType `json:"type"`
+}
+
+// Update represents an incoming update.
+type Update struct {
+	ID      int      `json:"update_id"`
+	Message *Message `json:"message,omitempty"`
+}
+
+// Message represents a message.
+type Message struct {
+	ID       int   `json:"message_id"`
+	From     *User `json:"from"`
+	Unixtime int64 `json:"date"`
+	Chat     *Chat `json:"chat"`
 }

@@ -10,3 +10,9 @@ func WithClient(client *http.Client) OptionFunc {
 		return nil
 	}
 }
+
+func WithHook() OptionFunc {
+	return func(b *Bot) error {
+		return nil
+	}
+}
