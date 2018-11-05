@@ -31,8 +31,9 @@ type Update struct {
 
 // Message represents a message.
 type Message struct {
-	ID       int   `json:"message_id"`
-	From     *User `json:"from"`
-	Unixtime int64 `json:"date"`
-	Chat     *Chat `json:"chat"`
+	ID       int    `json:"message_id"`
+	From     *User  `json:"from"`
+	Unixtime int64  `json:"date"`
+	Chat     *Chat  `json:"chat"`
+	Text     string `json:"text"`
 }

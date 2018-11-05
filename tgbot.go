@@ -8,24 +8,26 @@ import (
 )
 
 type Bot struct {
-	ctx     context.Context
-	stop    context.CancelFunc
-	Token   string
-	client  *http.Client
-	Me      *User
-	Updates chan Update
-	Hook    Hook
-	Timeout time.Duration
+	ctx      context.Context
+	stop     context.CancelFunc
+	Token    string
+	client   *http.Client
+	Me       *User
+	Hook     Hook
+	Updates  chan Update
+	Timeout  time.Duration
+	handlers map[string]HandlerFunc
 }
 
 // New build a bot with token
 func New(token string, opts ...OptionFunc) (*Bot, error) {
 	ctx, cancel := context.WithCancel(context.TODO())
 	bot := &Bot{
-		ctx:     ctx,
-		stop:    cancel,
-		Token:   token,
-		Updates: make(chan Update, 50),
+		ctx:      ctx,
+		stop:     cancel,
+		Token:    token,
+		Updates:  make(chan Update, 50),
+		handlers: make(map[string]HandlerFunc),
 	}
 
 	for _, opt := range opts {
@@ -78,6 +80,11 @@ func (b *Bot) processUpdate(up *Update) {
 		return
 	}
 	msg := up.Message
+	if msg.Text != "" {
+		b.handle(OnText, msg)
+	}
+}
 
-	log.Println(msg)
+func (b *Bot) Send(id string, text string) {
+	b.sendMessage(id, text)
 }

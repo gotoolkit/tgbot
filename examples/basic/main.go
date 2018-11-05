@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"strconv"
 
 	"github.com/gotoolkit/tgbot"
 )
@@ -11,11 +12,9 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Println(bot.Me)
-	// go func() {
-	// 	time.Sleep(5 * time.Second)
-	// 	bot.Stop()
-	// }()
+	bot.Handle(tgbot.OnText, func(m *tgbot.Message) {
+		bot.Send(strconv.Itoa(m.From.ID), m.Text)
+	})
 	bot.Start()
 
 }

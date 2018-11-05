@@ -33,6 +33,31 @@ func (b *Bot) Request(method string, payload interface{}) ([]byte, error) {
 
 }
 
+func (b *Bot) sendMessage(id string, text string) (*Message, error) {
+	params := map[string]string{
+		"chat_id": id,
+		"text":    text,
+	}
+	messageBts, err := b.Request("sendMessage", params)
+	if err != nil {
+		return nil, err
+	}
+	var messageInfo struct {
+		Ok          bool
+		Result      *Message
+		Description string
+	}
+	err = json.Unmarshal(messageBts, &messageInfo)
+	if err != nil {
+		return nil, err
+	}
+	if !messageInfo.Ok {
+		return nil, errors.New(fmt.Sprintf("api err: %s", messageInfo.Description))
+	}
+
+	return messageInfo.Result, nil
+}
+
 func (b *Bot) getUpdates(offset int, timeout time.Duration) ([]Update, error) {
 	params := map[string]string{
 		"offset":  strconv.Itoa(offset),
