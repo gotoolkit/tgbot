@@ -2,7 +2,6 @@ package main
 
 import (
 	"log"
-	"time"
 
 	"github.com/gotoolkit/tgbot"
 )
@@ -13,10 +12,10 @@ func main() {
 		log.Fatal(err)
 	}
 	log.Println(bot.Me)
-	go func() {
-		time.Sleep(5 * time.Second)
-		bot.Stop()
-	}()
+	// go func() {
+	// 	time.Sleep(5 * time.Second)
+	// 	bot.Stop()
+	// }()
 	bot.Start()
 
 }

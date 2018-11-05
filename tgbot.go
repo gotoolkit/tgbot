@@ -2,26 +2,27 @@ package tgbot
 
 import (
 	"context"
-	"errors"
 	"log"
 	"net/http"
+	"time"
 )
 
 type Bot struct {
-	context context.Context
+	ctx     context.Context
 	stop    context.CancelFunc
 	Token   string
 	client  *http.Client
 	Me      *User
 	Updates chan Update
 	Hook    Hook
+	Timeout time.Duration
 }
 
 // New build a bot with token
 func New(token string, opts ...OptionFunc) (*Bot, error) {
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(context.TODO())
 	bot := &Bot{
-		context: ctx,
+		ctx:     ctx,
 		stop:    cancel,
 		Token:   token,
 		Updates: make(chan Update, 50),
@@ -40,6 +41,10 @@ func New(token string, opts ...OptionFunc) (*Bot, error) {
 	if bot.Hook == nil {
 		bot.Hook = DefaultHook
 	}
+	if bot.Timeout == 0 {
+		bot.Timeout = 5 * time.Second
+	}
+
 	me, err := bot.getMe()
 	if err != nil {
 		return nil, err
@@ -49,22 +54,17 @@ func New(token string, opts ...OptionFunc) (*Bot, error) {
 	return bot, nil
 }
 
-func (b *Bot) Start() error {
-	if b.Hook == nil {
-		return errors.New("no hooks")
-	}
-	ctx, cancel := context.WithCancel(context.Background())
-	go b.Hook.Update(ctx, b)
+func (b *Bot) Start() {
+	ctx, _ := context.WithCancel(b.ctx)
+	go b.Hook.Update(ctx, b, b.Updates)
 	for {
 		select {
 		case up := <-b.Updates:
 			b.processUpdate(&up)
-		case <-b.context.Done():
-			log.Println("cancel")
-			cancel()
-		case <-ctx.Done():
-			log.Println("done")
-			return nil
+		case <-b.ctx.Done():
+			log.Println("Waiting hook task finished...")
+			time.Sleep(b.Timeout)
+			return
 		}
 	}
 }
@@ -74,5 +74,10 @@ func (b *Bot) Stop() {
 }
 
 func (b *Bot) processUpdate(up *Update) {
-	log.Println("update")
+	if up.Message == nil {
+		return
+	}
+	msg := up.Message
+
+	log.Println(msg)
 }
