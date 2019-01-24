@@ -58,6 +58,31 @@ func (b *Bot) sendMessage(id string, text string) (*Message, error) {
 	return messageInfo.Result, nil
 }
 
+func (b *Bot) deleteMessage(id string, messageID int) error {
+	params := map[string]string{
+		"chat_id":    id,
+		"message_id": fmt.Sprintf("%d", messageID),
+	}
+	messageBts, err := b.Request("deleteMessage", params)
+	if err != nil {
+		return err
+	}
+	var messageInfo struct {
+		Ok          bool
+		Description string
+	}
+	err = json.Unmarshal(messageBts, &messageInfo)
+	if err != nil {
+		return err
+	}
+
+	if !messageInfo.Ok {
+		return errors.New(fmt.Sprintf("api err: %s", messageInfo.Description))
+	}
+
+	return nil
+}
+
 func (b *Bot) getUpdates(offset int, timeout time.Duration) ([]Update, error) {
 	params := map[string]string{
 		"offset":  strconv.Itoa(offset),

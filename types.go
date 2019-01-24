@@ -25,8 +25,11 @@ type Chat struct {
 
 // Update represents an incoming update.
 type Update struct {
-	ID      int      `json:"update_id"`
-	Message *Message `json:"message,omitempty"`
+	ID         int      `json:"update_id"`
+	Message    *Message `json:"message,omitempty"`
+	Edited     *Message `json:"edited_message,omitempty"`
+	Post       *Message `json:"channel_post,omitempty"`
+	EditedPost *Message `json:"edited_channel_post,omitempty"`
 }
 
 // Message represents a message.

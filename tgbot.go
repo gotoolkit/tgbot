@@ -4,20 +4,24 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"regexp"
 	"time"
 )
 
 type Bot struct {
-	ctx      context.Context
-	stop     context.CancelFunc
-	Token    string
-	client   *http.Client
-	Me       *User
-	Hook     Hook
-	Updates  chan Update
-	Timeout  time.Duration
-	handlers map[string]HandlerFunc
+	ctx       context.Context
+	stop      context.CancelFunc
+	Token     string
+	client    *http.Client
+	Me        *User
+	DebugFunc func(*Update)
+	Hook      Hook
+	Updates   chan Update
+	Timeout   time.Duration
+	handlers  map[string]HandlerFunc
 }
+
+var cmdRx = regexp.MustCompile(`^(\/\w+)(@(\w+))?(\s|$)(.+)?`)
 
 // New build a bot with token
 func New(token string, opts ...OptionFunc) (*Bot, error) {
@@ -76,11 +80,16 @@ func (b *Bot) Stop() {
 }
 
 func (b *Bot) processUpdate(up *Update) {
+	if b.DebugFunc != nil {
+		b.DebugFunc(up)
+	}
+
 	if up.Message == nil {
 		return
 	}
 	msg := up.Message
 	if msg.Text != "" {
+
 		b.handle(OnText, msg)
 	}
 }
